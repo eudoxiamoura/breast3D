@@ -1,22 +1,17 @@
-from fastapi import FastAPI, File, UploadFile
-from PIL import Image, ImageFilter
-import io
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI
 
+# Inicializa a aplicação
 app = FastAPI()
 
+# Rota de exemplo
+@app.get("/")
+def read_root():
+    return {"message": "Bem-vindo à API"}
 
-@app.post("/process-image/")
-async def process_image(file: UploadFile = File(...)):
-    # Abra a imagem enviada
-    image = Image.open(io.BytesIO(await file.read()))
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: str = None):
+    return {"item_id": item_id, "query": q}
 
-    # Realize algum processamento (exemplo: converter para escala de cinza)
-    processed_image = image.convert("L")
-
-    # Salve a imagem em memória
-    img_bytes = io.BytesIO()
-    processed_image.save(img_bytes, format="JPEG")
-    img_bytes.seek(0)
-
-    return StreamingResponse(img_bytes, media_type="image/jpeg")
+@app.post("/items/")
+def create_item(item: dict):
+    return {"item_created": item}
